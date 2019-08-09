@@ -17,8 +17,8 @@ March  2013     V2.2
 #include <avr/pgmspace.h>
 #define  VERSION  220
 
-#if defined(HEX_NANO)
-volatile uint16_t serialRcValue[RC_CHANS] = {1502, 1502, 1502, 1502, 1502, 1502, 1502, 1502}; 
+#if defined(QUADX_FINDER)
+volatile uint16_t serialRcValue[RC_CHANS] = {1502, 1502, 1502, 1502, 1502, 1502, 1502, 1502};
 float alpha = 0.95;
 uint8_t paramList[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 int16_t absolutedAccZ = 0;
@@ -131,7 +131,7 @@ const char boxnames[] PROGMEM = // names for dynamic generation of config GUI
   #if MAG
     "MAG;"
     "HEADFREE;"
-    "HEADADJ;"  
+    "HEADADJ;"
   #endif
   #if defined(SERVO_TILT) || defined(GIMBAL)|| defined(SERVO_MIX_TILT)
     "CAMSTAB;"
@@ -182,7 +182,7 @@ const uint8_t boxids[] PROGMEM = {// permanent IDs associated to boxes. This way
   #if MAG
     5, //"MAG;"
     6, //"HEADFREE;"
-    7, //"HEADADJ;"  
+    7, //"HEADADJ;"
   #endif
   #if defined(SERVO_TILT) || defined(GIMBAL)|| defined(SERVO_MIX_TILT)
     8, //"CAMSTAB;"
@@ -342,7 +342,7 @@ static int16_t failsafeEvents = 0;
 volatile int16_t failsafeCnt = 0;
 
 static int16_t rcData[RC_CHANS];    // interval [1000;2000]
-static int16_t rcCommand[4];        // interval [1000;2000] for THROTTLE and [-500;+500] for ROLL/PITCH/YAW 
+static int16_t rcCommand[4];        // interval [1000;2000] for THROTTLE and [-500;+500] for ROLL/PITCH/YAW
 static int16_t lookupPitchRollRC[6];// lookup table for expo & RC rate PITCH+ROLL
 static int16_t lookupThrottleRC[11];// lookup table for expo & mid THROTTLE
 static uint16_t rssi;               // range: [0;1023]
@@ -381,7 +381,7 @@ static struct {
   uint8_t currentSet;
   int16_t accZero[3];
   int16_t magZero[3];
-  uint8_t checksum;      // MUST BE ON LAST POSITION OF STRUCTURE ! 
+  uint8_t checksum;      // MUST BE ON LAST POSITION OF STRUCTURE !
 } global_conf;
 
 
@@ -442,7 +442,7 @@ static struct {
    int16_t governorD;
    int8_t  governorR;
   #endif
-  uint8_t  checksum;      // MUST BE ON LAST POSITION OF CONF STRUCTURE ! 
+  uint8_t  checksum;      // MUST BE ON LAST POSITION OF CONF STRUCTURE !
 } conf;
 
 #ifdef LOG_PERMANENT
@@ -506,9 +506,9 @@ static struct {
   #define NAV_MODE_POSHOLD       1
   #define NAV_MODE_WP            2
   static uint8_t nav_mode = NAV_MODE_NONE; // Navigation mode
- 
+
   static uint8_t alarmArray[16];           // array
- 
+
 #if BARO
   static int32_t baroPressure;
   static int32_t baroTemperature;
@@ -561,7 +561,7 @@ void annexCode() { // this code is excetuted at each loop and won't interfere wi
     float cosDiff = cos(radDiff);
     float sinDiff = sin(radDiff);
     int16_t rcCommand_PITCH = rcCommand[PITCH]*cosDiff + rcCommand[ROLL]*sinDiff;
-    rcCommand[ROLL] =  rcCommand[ROLL]*cosDiff - rcCommand[PITCH]*sinDiff; 
+    rcCommand[ROLL] =  rcCommand[ROLL]*cosDiff - rcCommand[PITCH]*sinDiff;
     rcCommand[PITCH] = rcCommand_PITCH;
   }
 
@@ -578,7 +578,7 @@ void annexCode() { // this code is excetuted at each loop and won't interfere wi
       #endif
       } else {
         powerValue = 333;
-      }        
+      }
       pMeter[PMOTOR_SUM] += (uint32_t) powerValue;
     }
   #endif
@@ -595,7 +595,7 @@ void annexCode() { // this code is excetuted at each loop and won't interfere wi
       }
     #endif
     alarmHandler(); // external buzzer routine that handles buzzer events globally now
-  #endif  
+  #endif
 
   #if defined(RX_RSSI)
     static uint8_t sig = 0;
@@ -603,7 +603,7 @@ void annexCode() { // this code is excetuted at each loop and won't interfere wi
     static uint16_t rssiRawArray[8];
     rssiRawArray[(sig++)%8] = analogRead(RX_RSSI_PIN);
     for (uint8_t i=0;i<8;i++) rssiRaw += rssiRawArray[i];
-    rssi = rssiRaw / 8;       
+    rssi = rssiRaw / 8;
   #endif
 
   if ( (calibratingA>0 && ACC ) || (calibratingG>0) ) { // Calibration phasis
@@ -646,7 +646,7 @@ void annexCode() { // this code is excetuted at each loop and won't interfere wi
 
   #if defined(POWERMETER)
     intPowerMeterSum = (pMeter[PMOTOR_SUM]/conf.pleveldiv);
-    intPowerTrigger1 = conf.powerTrigger1 * PLEVELSCALE; 
+    intPowerTrigger1 = conf.powerTrigger1 * PLEVELSCALE;
   #endif
 
   #ifdef LCD_TELEMETRY_AUTO
@@ -657,7 +657,7 @@ void annexCode() { // this code is excetuted at each loop and won't interfere wi
       telemetry = telemetryAutoSequence[++telemetryAutoIndex % strlen(telemetryAutoSequence)];
       LCDclear(); // make sure to clear away remnants
     }
-  #endif  
+  #endif
   #ifdef LCD_TELEMETRY
     static uint16_t telemetryTimer = 0;
     if (! (++telemetryTimer % LCD_TELEMETRY_FREQ)) {
@@ -703,7 +703,7 @@ void annexCode() { // this code is excetuted at each loop and won't interfere wi
 }
 
 void system_init(void)
-{	
+{
   #if !defined(GPS_PROMINI)
 	SerialOpen(0,SERIAL0_COM_SPEED);
     #if defined(PROMICRO)
@@ -731,9 +731,9 @@ void system_init(void)
   #endif
 	readGlobalSet();
 	readEEPROM(); 								   // load current setting data
-	blinkLED(2,40,global_conf.currentSet+1);			
+	blinkLED(2,40,global_conf.currentSet+1);
 	configureReceiver();
-  #if defined (PILOTLAMP) 
+  #if defined (PILOTLAMP)
 	PL_INIT;
   #endif
   #if defined(OPENLRSv2MULTI)
@@ -757,7 +757,7 @@ void system_init(void)
   #if defined(GPS_SERIAL)
 	GPS_SerialInit();
 	for(uint8_t i=0;i<=5;i++){
-	GPS_NewData(); 
+	GPS_NewData();
 	LEDPIN_ON
 	delay(20);
 	LEDPIN_OFF
@@ -770,14 +770,14 @@ void system_init(void)
     #if !defined(GPS_PROMINI)
 	GPS_Present = 1;
     #endif
-	GPS_Enable = GPS_Present;	 
+	GPS_Enable = GPS_Present;
   #endif
 	/************************************/
-	 
+
   #if defined(I2C_GPS) || defined(TINY_GPS) || defined(GPS_FROM_OSD)
 	GPS_Enable = 1;
   #endif
-	  
+
   #if defined(LCD_ETPP) || defined(LCD_LCD03) || defined(OLED_I2C_128x64) || defined(LCD_TELEMETRY_STEP)
 	initLCD();
   #endif
@@ -808,7 +808,7 @@ void system_init(void)
 	plog.armed_time = 0;   // lifetime in seconds
 	//plog.running = 0; 	  // toggle on arm & disarm to monitor for clean shutdown vs. powercut
   #endif
-	
+
 	 debugmsg_append_str("initialization completed\n");
 }
 
@@ -825,7 +825,7 @@ void setup()
 void calibration_fun(void)
 {
 	calibratingG = 512;
-  #if GPS 
+  #if GPS
 	GPS_reset_home_position();
   #endif
   #if BARO
@@ -837,7 +837,7 @@ void calibration_fun(void)
 // Unlock function
 void go_arm() {
 
-  if(calibratingG == 0 && f.ACC_CALIBRATED 
+  if(calibratingG == 0 && f.ACC_CALIBRATED
   #if defined(FAILSAFE)
    // && failsafeCnt < 2
   #endif
@@ -860,11 +860,11 @@ void go_arm() {
         writePLog();
       #endif
     }
-  } else if(!f.ARMED) { 
+  } else if(!f.ARMED) {
     blinkLED(2,255,1);
     alarmArray[8] = 1;
   }
-  
+
   //------------------------------------------------------------------
 	if (calibration_flag == 0) {
 		calibration_flag = 1;
@@ -929,11 +929,11 @@ void loop () {
   #if defined(SPEKTRUM)
     if (spekFrameFlags == 0x01) readSpektrum();
   #endif
-  #if defined(OPENLRSv2MULTI) 
+  #if defined(OPENLRSv2MULTI)
     Read_OpenLRS_RC();
-  #endif 
+  #endif
 
-#if defined(HEX_NANO)
+#if defined(QUADX_FINDER)
   serialCom();
 #endif
 
@@ -941,7 +941,7 @@ void loop () {
     rcTime = currentTime + 20000;
     computeRC();
     // Failsafe routine - added by MIS
-#if defined(HEX_NANO)
+#if defined(QUADX_FINDER)
      rcData[0] = serialRcValue[0];
      rcData[1] = serialRcValue[1];
      rcData[2] = serialRcValue[2];
@@ -951,18 +951,18 @@ void loop () {
      rcData[6] = serialRcValue[6];
      rcData[7] = serialRcValue[7];
 #endif
-    
+
     #if defined(FAILSAFE)
       if ( failsafeCnt > (5*FAILSAFE_DELAY) && f.ARMED) {                  // Stabilize, and set Throttle to specified level
         for(i=0; i<3; i++) rcData[i] = MIDRC;                               // after specified guard time after RC signal is lost (in 0.1sec)
-        
+
         if(rcData[THROTTLE] < conf.failsafe_throttle){
           rcData[THROTTLE] = MINTHROTTLE;
         }
         else{
           rcData[THROTTLE] = conf.failsafe_throttle;
         }
-        
+
         if (failsafeCnt > 5*(FAILSAFE_DELAY+FAILSAFE_OFF_DELAY)) {          // Turn OFF motors after specified Time (in 0.1sec)
           go_disarm();     // This will prevent the copter to automatically rearm if failsafe shuts it down and prevents
           f.OK_TO_ARM = 0; // to restart accidentely by just reconnect to the tx - you will have to switch off first to rearm
@@ -989,15 +989,15 @@ void loop () {
       if(rcDelayCommand<250) rcDelayCommand++;
     } else rcDelayCommand = 0;
     rcSticks = stTmp;
-    
-    // perform actions    
+
+    // perform actions
     if (rcData[THROTTLE] <= MINCHECK) {            // THROTTLE at minimum
       errorGyroI[ROLL] = 0; errorGyroI[PITCH] = 0; errorGyroI[YAW] = 0;
       errorAngleI[ROLL] = 0; errorAngleI[PITCH] = 0;
       if (conf.activate[BOXARM] > 0) {             // Arming/Disarming via ARM BOX
-        if ( rcOptions[BOXARM] && f.OK_TO_ARM ) 
+        if ( rcOptions[BOXARM] && f.OK_TO_ARM )
 	go_arm();
-        else if (f.ARMED) 
+        else if (f.ARMED)
 	go_disarm();
       }
     }
@@ -1016,18 +1016,18 @@ void loop () {
 		calibration_fun();
 	//------------------------------------------------------------
         }
-        #if defined(INFLIGHT_ACC_CALIBRATION)  
+        #if defined(INFLIGHT_ACC_CALIBRATION)
          else if (rcSticks == THR_LO + YAW_LO + PIT_HI + ROL_HI) {    // Inflight ACC calibration START/STOP
             if (AccInflightCalibrationMeasurementDone){                // trigger saving into eeprom after landing
               AccInflightCalibrationMeasurementDone = 0;
               AccInflightCalibrationSavetoEEProm = 1;
-            }else{ 
-              AccInflightCalibrationArmed = !AccInflightCalibrationArmed; 
+            }else{
+              AccInflightCalibrationArmed = !AccInflightCalibrationArmed;
               #if defined(BUZZER)
                if (AccInflightCalibrationArmed) alarmArray[0]=2; else   alarmArray[0]=3;
               #endif
             }
-         } 
+         }
         #endif
         #ifdef MULTIPLE_CONFIGURATION_PROFILES
           if      (rcSticks == THR_LO + YAW_LO + PIT_CE + ROL_LO) i=1;    // ROLL left  -> Profile 1
@@ -1072,7 +1072,7 @@ void loop () {
           }
         #endif
         else if (rcSticks == THR_HI + YAW_LO + PIT_LO + ROL_CE) calibratingA=512;     // throttle=max, yaw=left, pitch=min
-        else if (rcSticks == THR_HI + YAW_HI + PIT_LO + ROL_CE) f.CALIBRATE_MAG = 1;  // throttle=max, yaw=right, pitch=min  
+        else if (rcSticks == THR_HI + YAW_HI + PIT_LO + ROL_CE) f.CALIBRATE_MAG = 1;  // throttle=max, yaw=right, pitch=min
         i=0;
         if      (rcSticks == THR_HI + YAW_CE + PIT_HI + ROL_CE) {conf.angleTrim[PITCH]+=2; i=1;}
         else if (rcSticks == THR_HI + YAW_CE + PIT_LO + ROL_CE) {conf.angleTrim[PITCH]-=2; i=1;}
@@ -1090,12 +1090,12 @@ void loop () {
     #if defined(LED_FLASHER)
       led_flasher_autoselect_sequence();
     #endif
-    
+
     #if defined(INFLIGHT_ACC_CALIBRATION)
       if (AccInflightCalibrationArmed && f.ARMED && rcData[THROTTLE] > MINCHECK && !rcOptions[BOXARM] ){ // Copter is airborne and you are turning it off via boxarm : start measurement
         InflightcalibratingA = 50;
         AccInflightCalibrationArmed = 0;
-      }  
+      }
       if (rcOptions[BOXCALIB]) {      // Use the Calib Option to activate : Calib = TRUE Meausrement started, Land and Calib = 0 measurement stored
         if (!AccInflightCalibrationActive && !AccInflightCalibrationMeasurementDone){
           InflightcalibratingA = 50;
@@ -1114,12 +1114,12 @@ void loop () {
 
     // note: if FAILSAFE is disable, failsafeCnt > 5*FAILSAFE_DELAY is always false
     #if ACC
-      if ( rcOptions[BOXANGLE] || (failsafeCnt > 5*FAILSAFE_DELAY) ) { 
+      if ( rcOptions[BOXANGLE] || (failsafeCnt > 5*FAILSAFE_DELAY) ) {
         // bumpless transfer to Level mode
         if (!f.ANGLE_MODE) {
           errorAngleI[ROLL] = 0; errorAngleI[PITCH] = 0;
           f.ANGLE_MODE = 1;
-        }  
+        }
       } else {
         // failsafe support
         f.ANGLE_MODE = 0;
@@ -1184,7 +1184,7 @@ void loop () {
         headFreeModeHold = heading; // acquire new heading
       }
     #endif
-    
+
     #if GPS
       static uint8_t GPSNavReset = 1;
       if (f.GPS_FIX && GPS_numSat >= 5 ) {
@@ -1232,12 +1232,12 @@ void loop () {
         #endif
       }
     #endif
-    
+
     #if defined(FIXEDWING) || defined(HELICOPTER)
       if (rcOptions[BOXPASSTHRU]) {f.PASSTHRU_MODE = 1;}
       else {f.PASSTHRU_MODE = 0;}
     #endif
- 
+
   } else { // not in rc loop
     static uint8_t taskOrder=0; // never call all functions in the same loop, to avoid high delay spikes
     if(taskOrder>4) taskOrder-=5;
@@ -1256,7 +1256,7 @@ void loop () {
         taskOrder++;
         #if BARO
           if (getEstimatedAltitude() !=0) break;
-        #endif    
+        #endif
       case 3:
         taskOrder++;
         #if GPS
@@ -1277,7 +1277,7 @@ void loop () {
         break;
     }
   }
- 
+
   computeIMU();
   // Measure loop rate just afer reading the sensors
   currentTime = micros();
@@ -1309,8 +1309,8 @@ void loop () {
     }
   #endif
 
- //*********************************** 
- 
+ //***********************************
+
   #if MAG
     if (abs(rcCommand[YAW]) <70 && f.MAG_MODE) {
       int16_t dif = heading - magHold;
@@ -1327,7 +1327,7 @@ void loop () {
         if (abs(rcCommand[THROTTLE]-initialThrottleHold) > ALT_HOLD_THROTTLE_NEUTRAL_ZONE) {
          //errorAltitudeI = 0;
           isAltHoldChanged = 1;
-          rcCommand[THROTTLE] += (rcCommand[THROTTLE] > initialThrottleHold) ? -ALT_HOLD_THROTTLE_NEUTRAL_ZONE : ALT_HOLD_THROTTLE_NEUTRAL_ZONE;          
+          rcCommand[THROTTLE] += (rcCommand[THROTTLE] > initialThrottleHold) ? -ALT_HOLD_THROTTLE_NEUTRAL_ZONE : ALT_HOLD_THROTTLE_NEUTRAL_ZONE;
          // initialThrottleHold += (rcCommand[THROTTLE] > initialThrottleHold) ? -ALT_HOLD_THROTTLE_NEUTRAL_ZONE : ALT_HOLD_THROTTLE_NEUTRAL_ZONE;; //++hex nano
         } else {
           if (isAltHoldChanged) {
@@ -1359,12 +1359,12 @@ void loop () {
     if ( (f.GPS_HOME_MODE || f.GPS_HOLD_MODE) && f.GPS_FIX_HOME ) {
       float sin_yaw_y = sin(heading*0.0174532925f);
       float cos_yaw_x = cos(heading*0.0174532925f);
-      #if defined(NAV_SLEW_RATE)     
+      #if defined(NAV_SLEW_RATE)
         nav_rated[LON]   += constrain(wrap_18000(nav[LON]-nav_rated[LON]),-NAV_SLEW_RATE,NAV_SLEW_RATE);
         nav_rated[LAT]   += constrain(wrap_18000(nav[LAT]-nav_rated[LAT]),-NAV_SLEW_RATE,NAV_SLEW_RATE);
         GPS_angle[ROLL]   = (nav_rated[LON]*cos_yaw_x - nav_rated[LAT]*sin_yaw_y) /10;
         GPS_angle[PITCH]  = (nav_rated[LON]*sin_yaw_y + nav_rated[LAT]*cos_yaw_x) /10;
-      #else 
+      #else
         GPS_angle[ROLL]   = (nav[LON]*cos_yaw_x - nav[LAT]*sin_yaw_y) /10;
         GPS_angle[PITCH]  = (nav[LON]*sin_yaw_y + nav[LAT]*cos_yaw_x) /10;
       #endif
@@ -1395,7 +1395,7 @@ void loop () {
       error -= gyroData[axis];
 
       PTermGYRO = rcCommand[axis];
-      
+
       errorGyroI[axis]  = constrain(errorGyroI[axis]+error,-16000,+16000);         // WindUp   16 bits is ok here
       if (abs(gyroData[axis])>640) errorGyroI[axis] = 0;
       ITermGYRO = ((errorGyroI[axis]>>7)*conf.I8[axis])>>6;                        // 16 bits is ok here 16000/125 = 128 ; 128*250 = 32000
@@ -1413,16 +1413,16 @@ void loop () {
       }
     }
 
-    PTerm -= ((int32_t)gyroData[axis]*dynP8[axis])>>6; // 32 bits is needed for calculation   
+    PTerm -= ((int32_t)gyroData[axis]*dynP8[axis])>>6; // 32 bits is needed for calculation
 
     delta          = gyroData[axis] - lastGyro[axis];  // 16 bits is ok here, the dif between 2 consecutive gyro reads is limited to 800
     lastGyro[axis] = gyroData[axis];
     deltaSum       = delta1[axis]+delta2[axis]+delta;
     delta2[axis]   = delta1[axis];
     delta1[axis]   = delta;
- 
+
     DTerm = ((int32_t)deltaSum*dynD8[axis])>>5;        // 32 bits is needed for calculation
-                      
+
     axisPID[axis] =  PTerm + ITerm - DTerm;
   }
 
@@ -1430,4 +1430,3 @@ void loop () {
   writeServos();
   writeMotors();
 }
-

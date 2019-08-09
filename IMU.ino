@@ -113,13 +113,13 @@ void computeIMU () {
 // for WMP, empirical value should be #define GYRO_SCALE (1.0f/200e6f)
 // !!!!should be adjusted to the rad/sec and be part defined in each gyro sensor
 
-typedef struct fp_vector {		
-  float X,Y,Z;		
+typedef struct fp_vector {
+  float X,Y,Z;
 } t_fp_vector_def;
 
-typedef union {		
-  float A[3];		
-  t_fp_vector_def V;		
+typedef union {
+  float A[3];
+  t_fp_vector_def V;
 } t_fp_vector;
 
 typedef struct int32_t_vector {
@@ -147,13 +147,13 @@ int16_t _atan2(int32_t y, int32_t x){
   return a;
 }
 
-float InvSqrt (float x){ 
-  union{  
-    int32_t i;  
-    float   f; 
-  } conv; 
-  conv.f = x; 
-  conv.i = 0x5f3759df - (conv.i >> 1); 
+float InvSqrt (float x){
+  union{
+    int32_t i;
+    float   f;
+  } conv;
+  conv.f = x;
+  conv.i = 0x5f3759df - (conv.i >> 1);
   return 0.5f * conv.f * (3.0f - x * conv.f * conv.f);
 }
 
@@ -224,7 +224,7 @@ void getEstimatedAttitude(){
   #endif
 
   for (axis = 0; axis < 3; axis++)
-    EstG32.A[axis] = EstG.A[axis]; //int32_t cross calculation is a little bit faster than float	
+    EstG32.A[axis] = EstG.A[axis]; //int32_t cross calculation is a little bit faster than float
 
   // Attitude of the estimated vector
   int32_t sqGZ = sq(EstG32.V.Z);
@@ -239,7 +239,7 @@ void getEstimatedAttitude(){
   #if MAG
     heading = _atan2(
       EstM32.V.Z * EstG32.V.X - EstM32.V.X * EstG32.V.Z,
-      EstM32.V.Y * invG * sqGX_sqGZ  - (EstM32.V.X * EstG32.V.X + EstM32.V.Z * EstG32.V.Z) * invG * EstG32.V.Y ); 
+      EstM32.V.Y * invG * sqGX_sqGZ  - (EstM32.V.X * EstG32.V.X + EstM32.V.Z * EstG32.V.Z) * invG * EstG32.V.Y );
     heading += MAG_DECLINIATION * 10; //add declination
     heading = heading /10;
   #endif
@@ -284,12 +284,12 @@ uint8_t getEstimatedAltitude(){
   // baroGroundPressure is not supposed to be 0 here
   // see: https://code.google.com/p/ardupilot-mega/source/browse/libraries/AP_Baro/AP_Baro.cpp
   BaroAlt = (logBaroGroundPressureSum - log(baroPressureSum)) * baroGroundTemperatureScale;
-  
+
   EstAlt = (EstAlt * 6 + BaroAlt * 2) >> 3; // additional LPF to reduce baro noise (faster by 30 µs)
 
   #if (defined(VARIOMETER) && (VARIOMETER != 2)) || !defined(SUPPRESS_BARO_ALTHOLD)
     int16_t targetVel = constrain(AltHold - EstAlt, -100, 100);
-    
+
     // projection of ACC vector to global Z, with 1G subtructed
     // Math: accZ = A * G / |G| - 1G
     int16_t accZ = (accSmooth[ROLL] * EstG32.V.X + accSmooth[PITCH] * EstG32.V.Y + accSmooth[YAW] * EstG32.V.Z) * invG;
@@ -298,9 +298,9 @@ uint8_t getEstimatedAltitude(){
     if (!f.ARMED) {
       accZoffset -= accZoffset>>3;
       accZoffset += accZ;
-    }  
+    }
     accZ -= accZoffset>>3;
- 
+
    //applyDeadband(accZ, ACC_Z_DEADBAND);
 
     static float vel = 0.0f;
@@ -317,17 +317,17 @@ uint8_t getEstimatedAltitude(){
     baroVel = constrain(baroVel, -300, 300); // constrain baro velocity +/- 300cm/s
     applyDeadband(baroVel, 10); // to reduce noise near zero
 
-    // apply Complimentary Filter to keep the calculated velocity based on baro velocity (i.e. near real velocity). 
+    // apply Complimentary Filter to keep the calculated velocity based on baro velocity (i.e. near real velocity).
     // By using CF it's possible to correct the drift of integrated accZ (velocity) without loosing the phase, i.e without delay
     vel = vel * 0.985f+ baroVel * 0.015f;
-    
-    int16_t error16 = targetVel - vel;    
+
+    int16_t error16 = targetVel - vel;
     BaroPID = constrain((conf.P8[PIDALT] * error16 >>7), -200, +200);
-   
+
     errorAltitudeI += conf.I8[PIDALT] * error16 >>6;
     errorAltitudeI = constrain(errorAltitudeI,-30000,30000);
     BaroPID += errorAltitudeI>>8; //I in range +/-60
- 
+
     BaroPID = constrain(BaroPID, -200, 200);
 
     debug[0] = vel;
@@ -340,7 +340,7 @@ uint8_t getEstimatedAltitude(){
     int16_t vel_tmp = vel;
     applyDeadband(vel_tmp, 5);
     vario = vel_tmp;
- 
+
     BaroPID -= constrain(conf.D8[PIDALT] * vel_tmp >>4, -150, 150);
     */
   #endif

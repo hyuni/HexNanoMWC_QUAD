@@ -14,7 +14,7 @@ void readGlobalSet() {
     global_conf.accZero[ROLL] = 5000;    // for config error signalization
   }
 }
- 
+
 void readEEPROM() {
   uint8_t i;
   #ifdef MULTIPLE_CONFIGURATION_PROFILES
@@ -24,11 +24,11 @@ void readEEPROM() {
   #endif
   eeprom_read_block((void*)&conf, (void*)(global_conf.currentSet * sizeof(conf) + sizeof(global_conf)), sizeof(conf));
   if(calculate_sum((uint8_t*)&conf, sizeof(conf)) != conf.checksum) {
-    blinkLED(6,100,3);    
+    blinkLED(6,100,3);
     #if defined(BUZZER)
       alarmArray[7] = 3;
     #endif
-    LoadDefaults();                 // force load defaults 
+    LoadDefaults();                 // force load defaults
   }
   for(i=0;i<6;i++) {
     lookupPitchRollRC[i] = (2500+conf.rcExpo8*(i*i-25))*i*(int32_t)conf.rcRate8/2500;
@@ -80,11 +80,11 @@ void writeGlobalSet(uint8_t b) {
   eeprom_write_block((const void*)&global_conf, (void*)0, sizeof(global_conf));
   if (b == 1) blinkLED(15,20,1);
   #if defined(BUZZER)
-    alarmArray[7] = 1; 
+    alarmArray[7] = 1;
   #endif
 
 }
- 
+
 void writeParams(uint8_t b) {
   #ifdef MULTIPLE_CONFIGURATION_PROFILES
     if(global_conf.currentSet>2) global_conf.currentSet=0;
@@ -105,32 +105,35 @@ void LoadDefaults() {
   conf.P8[PITCH]    = 33; conf.I8[PITCH]    = 30; conf.D8[PITCH]    = 23;
   conf.P8[YAW]      = 68;  conf.I8[YAW]     = 45;  conf.D8[YAW]     = 0;
   conf.P8[PIDALT]   = 100; conf.I8[PIDALT]   = 25; conf.D8[PIDALT]   = 24;
-  
+
   conf.P8[PIDPOS]  = POSHOLD_P * 100;     conf.I8[PIDPOS]    = POSHOLD_I * 100;       conf.D8[PIDPOS]    = 0;
   conf.P8[PIDPOSR] = POSHOLD_RATE_P * 10; conf.I8[PIDPOSR]   = POSHOLD_RATE_I * 100;  conf.D8[PIDPOSR]   = POSHOLD_RATE_D * 1000;
   conf.P8[PIDNAVR] = NAV_P * 10;          conf.I8[PIDNAVR]   = NAV_I * 100;           conf.D8[PIDNAVR]   = NAV_D * 1000;
 
   conf.P8[PIDLEVEL] = 90; conf.I8[PIDLEVEL] = 10; conf.D8[PIDLEVEL] = 100;
   conf.P8[PIDMAG]   = 40;
-  
+
   conf.P8[PIDVEL] = 0;      conf.I8[PIDVEL] = 0;    conf.D8[PIDVEL] = 0;
-  
+
   conf.rcRate8 = 90; conf.rcExpo8 = 0;
   conf.rollPitchRate = 0;
   conf.yawRate = 0;
   conf.dynThrPID = 0;
   conf.thrMid8 = 50; conf.thrExpo8 = 50;
   for(uint8_t i=0;i<CHECKBOXITEMS;i++) {conf.activate[i] = 0;}
-  
+
   conf.activate[BOXHORIZON]  = 1 << 0 | 1 << 1 | 1 << 2;
   //conf.activate[BOXHEADFREE] = 1 << 2;
-  conf.activate[BOXBARO]     = 1 << 5;
-  
+
+  #if (BARO == 1) && (!defined(SUPPRESS_BARO_ALTHOLD))
+    conf.activate[BOXBARO]     = 1 << 5;
+  #endif
+
   conf.angleTrim[0] = 0; conf.angleTrim[1] = 0;
   conf.powerTrigger1 = 0;
   #ifdef FLYING_WING
-    conf.wing_left_mid  = WING_LEFT_MID; 
-    conf.wing_right_mid = WING_RIGHT_MID; 
+    conf.wing_left_mid  = WING_LEFT_MID;
+    conf.wing_right_mid = WING_RIGHT_MID;
   #endif
   #ifdef FIXEDWING
     conf.dynThrPID = 50;

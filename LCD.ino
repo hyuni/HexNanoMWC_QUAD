@@ -23,7 +23,7 @@ char digit1(uint16_t v) {return '0' + v - (v/10) * 10;}
 // #  i2c OLED display funtion primitives #
 // ########################################
 #define OLED_address   0x3C     // OLED at address 0x3C in 7bit
-char LINE_FILL_STRING[] = "                      "; // Used by clear_OLED() 128 bits / 6 bytes = 21 chars per row  
+char LINE_FILL_STRING[] = "                      "; // Used by clear_OLED() 128 bits / 6 bytes = 21 chars per row
 unsigned char CHAR_FORMAT = 0;      // use to INVERSE characters
 // use INVERSE    CHAR_FORMAT = 0b01111111;
 // use NORMAL     CHAR_FORMAT = 0;
@@ -764,7 +764,7 @@ static lcd_type_desc_t LAUX4 = {&__uAuxFmt4, &__u16Inc};
 
 //typedef struct lcd_param_t{
 //  char*  paramText;
-//  void * var; 
+//  void * var;
 //  lcd_param_def_t * def;
 //};
 
@@ -1367,7 +1367,7 @@ void configurationLoop() {
       refreshLCD = 0;
     }
     #if defined(SPEKTRUM)
-      readRawRC(1); delay(44); // For digital receivers like Spektrum, SBUS, and Serial, to ensure that an "old" frame does not cause immediate exit at startup. 
+      readRawRC(1); delay(44); // For digital receivers like Spektrum, SBUS, and Serial, to ensure that an "old" frame does not cause immediate exit at startup.
     #endif
     #if defined(LCD_TEXTSTAR) || defined(LCD_VT100) || defined(LCD_TTY) // textstar, vt100 and tty can send keys
       key = ( SerialAvailable(LCD_SERIAL_PORT) ? SerialRead(LCD_SERIAL_PORT) : 0 );
@@ -1827,7 +1827,7 @@ void lcd_telemetry() {
       if (linenr++ % 2) {
         fill_line1_gps_lat(1); // including #sat
         LCDsetLine(1);LCDprintChar(line1);
-       
+
       } else {
         fill_line2_gps_lon(1); // including status info
         LCDsetLine(2);LCDprintChar(line2);
@@ -2267,9 +2267,9 @@ void lcd_telemetry() {
 #endif // DISPLAY_MULTILINE
 
 void toggle_telemetry(uint8_t t) {
-  if (telemetry == t) telemetry = 0; 
+  if (telemetry == t) telemetry = 0;
   else {
-     telemetry = t; 
+     telemetry = t;
      #ifdef OLED_I2C_128x64
        if (telemetry != 0) i2c_OLED_init();
      #endif

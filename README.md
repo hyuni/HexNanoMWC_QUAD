@@ -18,19 +18,19 @@ git clone https://github.com/HexAirbot/HexNanoMWC_QUAD.git
 [version 1.0.3 source code](https://github.com/HexAirbot/HexNanoMWC_QUAD/archive/v1.0.3.zip)
 
 
-####How to compile 
+####How to compile
 
  1.Download the Arduino IDE (you should use the version 1.0.5+)
- 
+
  2.Download the source code here, and put all the source files (.ino file) under folder HexNanoMWC_QUAD.
 
  3.Open the main file HexNanoMWC_QUAD.ino with the Arduino IDE, and the IDE will also automatically open other source files.
-   
+
  4.Connect your Flexbot via USB
- 
+
  5.Set the Board in your IDE to Arduino Leonardo
    Select the correct COM Port
-  
+
  6.Click the verify and then the upload button
 
 ##Development

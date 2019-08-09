@@ -19,7 +19,7 @@ static volatile uint8_t serialHeadTX[UART_NUMBER],serialTailTX[UART_NUMBER];
 static uint8_t serialBufferTX[TX_BUFFER_SIZE][UART_NUMBER];
 static uint8_t inBuf[INBUF_SIZE][UART_NUMBER];
 
-#define BIND_CAPABLE 0;  //Used for Spektrum today; can be used in the future for any RX type that needs a bind and has a MultiWii module. 
+#define BIND_CAPABLE 0;  //Used for Spektrum today; can be used in the future for any RX type that needs a bind and has a MultiWii module.
 #if defined(SPEK_BIND)
   #define BIND_CAPABLE 1;
 #endif
@@ -34,7 +34,7 @@ const uint32_t PROGMEM capability = 0+BIND_CAPABLE;
   static uint8_t tail_debug;
 #endif
 
-// Multiwii Serial Protocol 0 
+// Multiwii Serial Protocol 0
 #define MSP_VERSION              0
 
 //to multiwii developpers/committers : do not add new MSP messages without a proper argumentation/agreement on the forum
@@ -53,13 +53,13 @@ const uint32_t PROGMEM capability = 0+BIND_CAPABLE;
 #define MSP_PID                  112   //out message         P I D coeff (9 are used currently)
 #define MSP_BOX                  113   //out message         BOX setup (number is dependant of your setup)
 #define MSP_MISC                 114   //out message         powermeter trig
-#define MSP_MOTOR_PINS           115   //out message         which pins are in use for motors & servos, for GUI 
+#define MSP_MOTOR_PINS           115   //out message         which pins are in use for motors & servos, for GUI
 #define MSP_BOXNAMES             116   //out message         the aux switch names
 #define MSP_PIDNAMES             117   //out message         the PID names
 #define MSP_WP                   118   //out message         get a WP, WP# is in the payload, returns (WP#, lat, lon, alt, flags) WP#0-home, WP#16-poshold
 #define MSP_BOXIDS               119   //out message         get the permanent IDs associated to BOXes
 
-#if defined(HEX_NANO)
+#if defined(QUADX_FINDER)
 #define MSP_SET_RAW_RC_TINY      150   //in message          4 rc chan
 #define MSP_ARM                  151
 #define MSP_DISARM               152
@@ -151,7 +151,7 @@ void serializeNames(PGM_P s) {
 }
 
 void serialCom() {
-  uint8_t c,n;  
+  uint8_t c,n;
   static uint8_t offset[UART_NUMBER];
   static uint8_t dataSize[UART_NUMBER];
   static enum _serial_state {
@@ -170,10 +170,10 @@ void serialCom() {
     #define GPS_COND
     #if defined(GPS_SERIAL)
       #if defined(GPS_PROMINI)
-        #define GPS_COND       
+        #define GPS_COND
       #else
         #define GPS_COND  && (GPS_SERIAL != CURRENTPORT)
-      #endif      
+      #endif
     #endif
     #define SPEK_COND
     #if defined(SPEKTRUM) && (UART_NUMBER > 1)
@@ -225,45 +225,45 @@ void serialCom() {
 }
 #ifndef SUPPRESS_ALL_SERIAL_MSP
 void evaluateCommand() {
-  #if defined(HEX_NANO)
+  #if defined(QUADX_FINDER)
   unsigned char auxChannels;
   unsigned char aux;
   #endif
-  
+
   switch(cmdMSP[CURRENTPORT]) {
    case MSP_SET_RAW_RC:
      for(uint8_t i=0;i<8;i++) {
        rcData[i] = read16();
      }
-     
+
      failsafeCnt = 0;
-     
+
      headSerialReply(0);
      break;
- 
-   #if defined(HEX_NANO)
+
+   #if defined(QUADX_FINDER)
    case MSP_READ_TEST_PARAM:
      headSerialReply(12);
-     
+
      blinkLED(15,20,1);
-    
+
      paramList[0] = alpha * 250.f;
      paramList[1] = conf.P8[PIDALT] * 250.f / 200;
      paramList[2] = conf.I8[PIDALT];
      paramList[3] = conf.D8[PIDALT] * 250.f / 100;
-     
+
      for(int idx = 0; idx < 12; idx++){
        serialize8(paramList[idx]);
-     } 
-     
+     }
+
      break;
    case MSP_SET_TEST_PARAM:
      for(int idx = 0; idx < 12; idx++){
        paramList[idx] = read8();
      }
-     
+
      blinkLED(15,20,1);
-     
+
      alpha = paramList[0] / 250.f;
      conf.P8[PIDALT] = paramList[1] / 250.f * 200;   //0~200
      conf.I8[PIDALT] = paramList[2];                 //0~250
@@ -275,11 +275,11 @@ void evaluateCommand() {
      for(uint8_t i = 0;i < 4;i++) {
        serialRcValue[i] = 1000 + read8() * 4;
      }
-     
+
      auxChannels = read8();
-     
+
      aux = (auxChannels & 0xc0) >> 6;
-     
+
      if(aux == 0){
        serialRcValue[4] = 1000;
      }
@@ -289,10 +289,10 @@ void evaluateCommand() {
      else{
        serialRcValue[4] = 2000;
      }
-     
-     
+
+
      aux = (auxChannels & 0x30) >> 4;
-     
+
      if(aux == 0){
        serialRcValue[5] = 1000;
      }
@@ -302,10 +302,10 @@ void evaluateCommand() {
      else{
        serialRcValue[5] = 2000;
      }
-     
-     
+
+
      aux = (auxChannels & 0x0c) >> 2;
-     
+
      if(aux == 0){
        serialRcValue[6] = 1000;
      }
@@ -315,9 +315,9 @@ void evaluateCommand() {
      else{
        serialRcValue[6] = 2000;
      }
-     
+
      aux = (auxChannels & 0x03);
-     
+
      if(aux == 0){
        serialRcValue[7] = 1000;
      }
@@ -327,15 +327,15 @@ void evaluateCommand() {
      else{
        serialRcValue[7] = 2000;
      }
-     
+
      failsafeCnt = 0;
-     
-          
+
+
      return;
-     
+
      /*
      headSerialReply(8);
-     
+
      for(uint8_t i = 0; i < 4; i++) {
        serialize16(serialRcValue[i]);
      }*/
@@ -348,7 +348,7 @@ void evaluateCommand() {
      break;
    case MSP_TRIM_UP:
      if(conf.angleTrim[PITCH] < 120){
-       conf.angleTrim[PITCH]+=1;  
+       conf.angleTrim[PITCH]+=1;
        writeParams(1);
        #if defined(LED_RING)
          blinkLedRing();
@@ -357,7 +357,7 @@ void evaluateCommand() {
      break;
    case MSP_TRIM_DOWN:
      if(conf.angleTrim[PITCH] > -120){
-       conf.angleTrim[PITCH]-=1; 
+       conf.angleTrim[PITCH]-=1;
        writeParams(1);
        #if defined(LED_RING)
          blinkLedRing();
@@ -366,7 +366,7 @@ void evaluateCommand() {
      break;
    case MSP_TRIM_LEFT:
      if(conf.angleTrim[ROLL] > -120){
-       conf.angleTrim[ROLL]-=1; 
+       conf.angleTrim[ROLL]-=1;
        writeParams(1);
        #if defined(LED_RING)
          blinkLedRing();
@@ -375,7 +375,7 @@ void evaluateCommand() {
      break;
    case MSP_TRIM_RIGHT:
      if(conf.angleTrim[ROLL] < 120){
-       conf.angleTrim[ROLL]+=1; 
+       conf.angleTrim[ROLL]+=1;
        writeParams(1);
        #if defined(LED_RING)
          blinkLedRing();
@@ -384,7 +384,7 @@ void evaluateCommand() {
      break;
    case MSP_TRIM_UP_FAST:
      if(conf.angleTrim[PITCH] < 120){
-       conf.angleTrim[PITCH]+=10;  
+       conf.angleTrim[PITCH]+=10;
        writeParams(1);
        #if defined(LED_RING)
          blinkLedRing();
@@ -393,7 +393,7 @@ void evaluateCommand() {
      break;
    case MSP_TRIM_DOWN_FAST:
      if(conf.angleTrim[PITCH] > -120){
-       conf.angleTrim[PITCH]-=10; 
+       conf.angleTrim[PITCH]-=10;
        writeParams(1);
        #if defined(LED_RING)
          blinkLedRing();
@@ -402,7 +402,7 @@ void evaluateCommand() {
      break;
    case MSP_TRIM_LEFT_FAST:
      if(conf.angleTrim[ROLL] > -120){
-       conf.angleTrim[ROLL]-=10; 
+       conf.angleTrim[ROLL]-=10;
        writeParams(1);
        #if defined(LED_RING)
          blinkLedRing();
@@ -411,7 +411,7 @@ void evaluateCommand() {
      break;
    case MSP_TRIM_RIGHT_FAST:
      if(conf.angleTrim[ROLL] < 120){
-       conf.angleTrim[ROLL]+=10; 
+       conf.angleTrim[ROLL]+=10;
        writeParams(1);
        #if defined(LED_RING)
          blinkLedRing();
@@ -655,11 +655,11 @@ void evaluateCommand() {
        serialize8(PWM_PIN[i]);
      }
      break;
-   #if defined(USE_MSP_WP)    
+   #if defined(USE_MSP_WP)
    case MSP_WP:
      {
        int32_t lat = 0,lon = 0;
-       uint8_t wp_no = read8();        //get the wp number  
+       uint8_t wp_no = read8();        //get the wp number
        headSerialReply(18);
        if (wp_no == 0) {
          lat = GPS_home[LAT];
@@ -673,7 +673,7 @@ void evaluateCommand() {
        serialize32(lon);
        serialize32(AltHold);           //altitude (cm) will come here -- temporary implementation to test feature with apps
        serialize16(0);                 //heading  will come here (deg)
-       serialize16(0);                 //time to stay (ms) will come here 
+       serialize16(0);                 //time to stay (ms) will come here
        serialize8(0);                  //nav flag will come here
      }
      break;
@@ -720,7 +720,7 @@ void evaluateCommand() {
      break;
 #if defined(SPEK_BIND)
    case MSP_BIND:
-     spekBind();  
+     spekBind();
      headSerialReply(0);
      break;
 #endif
@@ -974,12 +974,12 @@ static void inline SerialEnd(uint8_t port) {
 static void inline store_uart_in_buf(uint8_t data, uint8_t portnum) {
   #if defined(SPEKTRUM)
     if (portnum == SPEK_SERIAL_PORT) {
-      if (!spekFrameFlags) { 
+      if (!spekFrameFlags) {
         sei();
         uint32_t spekTimeNow = (timer0_overflow_count << 8) * (64 / clockCyclesPerMicrosecond()); //Move timer0_overflow_count into registers so we don't touch a volatile twice
         uint32_t spekInterval = spekTimeNow - spekTimeLast;                                       //timer0_overflow_count will be slightly off because of the way the Arduino core timer interrupt handler works; that is acceptable for this use. Using the core variable avoids an expensive call to millis() or micros()
         spekTimeLast = spekTimeNow;
-        if (spekInterval > 5000) {  //Potential start of a Spektrum frame, they arrive every 11 or every 22 ms. Mark it, and clear the buffer. 
+        if (spekInterval > 5000) {  //Potential start of a Spektrum frame, they arrive every 11 or every 22 ms. Mark it, and clear the buffer.
           serialTailRX[portnum] = 0;
           serialHeadRX[portnum] = 0;
           spekFrameFlags = 0x01;
@@ -992,7 +992,7 @@ static void inline store_uart_in_buf(uint8_t data, uint8_t portnum) {
   uint8_t h = serialHeadRX[portnum];
   if (++h >= RX_BUFFER_SIZE) h = 0;
   if (h == serialTailRX[portnum]) return; // we did not bite our own tail?
-  serialBufferRX[serialHeadRX[portnum]][portnum] = data;  
+  serialBufferRX[serialHeadRX[portnum]][portnum] = data;
   serialHeadRX[portnum] = h;
 }
 
@@ -1017,7 +1017,7 @@ uint8_t SerialRead(uint8_t port) {
       #if (ARDUINO >= 100)
         if(port == 0) USB_Flush(USB_CDC_TX);
       #endif
-      if(port == 0) return USB_Recv(USB_CDC_RX);      
+      if(port == 0) return USB_Recv(USB_CDC_RX);
     #endif
   #endif
   uint8_t t = serialTailRX[port];
